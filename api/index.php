@@ -42,5 +42,25 @@ require_once JPATH_BASE . '/includes/framework.php';
 // Set profiler start time and memory usage and mark afterLoad in the profiler.
 JDEBUG ? $_PROFILER->setStart($startTime, $startMem)->mark('afterLoad') : null;
 
+// Every other library can be loaded after load time. But JApplication requires the class
+// to start with J, so won't meet our autoloader's convention anyhow. So let's just load
+// it right here!
+require_once JPATH_LIBRARIES . '/api/application/api.php';
+
+// Register the library base path for the application libraries.
+JLoader::registerPrefix('Api', dirname(__DIR__) . '/libraries/api');
+
+// Set system error handling
+JError::setErrorHandling(E_NOTICE, 'callback', array('ApiError', 'handleLegacyError'));
+JError::setErrorHandling(E_WARNING, 'callback', array('ApiError', 'handleLegacyError'));
+JError::setErrorHandling(E_ERROR, 'callback', array('ApiError', 'handleLegacyError'));
+
+// Set a custom Exception handler
+restore_exception_handler();
+set_exception_handler(array('ApiError', 'handleUncaughtThrowable'));
+
+// Register the application client
+JApplicationHelper::addClientInfo((object) array('id' => 3, 'name' => 'api', 'path' => JPATH_BASE));
+
 // Instantiate and execute the application.
 JFactory::getApplication('api')->execute();

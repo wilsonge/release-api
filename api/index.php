@@ -42,10 +42,9 @@ require_once JPATH_BASE . '/includes/framework.php';
 // Set profiler start time and memory usage and mark afterLoad in the profiler.
 JDEBUG ? $_PROFILER->setStart($startTime, $startMem)->mark('afterLoad') : null;
 
-// Every other library can be loaded after load time. But JApplication requires the class
-// to start with J, so won't meet our autoloader's convention anyhow. So let's just load
-// it right here!
-require_once JPATH_LIBRARIES . '/api/application/api.php';
+// Every other library can be loaded after load time. But JApplication requires the class to start with J, so won't
+// meet our autoloader's convention. So let's just load it right here right now and then autoload the rest of the API's
+JLoader::register('JApplicationApi', JPATH_LIBRARIES . '/api/application/api.php');
 
 // Register the library base path for the application libraries.
 JLoader::registerPrefix('Api', dirname(__DIR__) . '/libraries/api');

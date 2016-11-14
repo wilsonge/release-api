@@ -1,0 +1,100 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Joomla Downloads Site API",
+        "contact": {
+            "name": "Michael Babker"
+        },
+        "version": "1.0.0"
+    },
+    "host": "https://downloads.joomla.org",
+    "basePath": "/api/",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/downloads/cms": {
+            "get": {
+                "summary": "Gets the download counts for each major version of the CMS",
+                "description": "Gets a total number of download counts of Joomla! CMS and then a breakdown for each major version",
+                "operationId": "breakdownMajor",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DownloadBreakdownResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Service Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/downloads/cms/:version": {
+            "get": {
+                "summary": "Gets the download counts for each minor version of the CMS",
+                "description": "Gets a total number of download counts of a major version of Joomla! CMS and then a breakdown for each minor version",
+                "operationId": "breakdownMinor",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DownloadBreakdownResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Service Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "DownloadBreakdownResponse": {
+            "description": "The Response contains the total number of downloads of a versions and then a breakdown.",
+            "required": [
+                "total",
+                "branches"
+            ],
+            "properties": {
+                "total": {
+                    "type": "string"
+                },
+                "branches": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "ErrorResponse": {
+              "description": "The Error response contains a error constant which can be used to split up responses and can be\nconverted to translatable error messages. The error description returns a more descriptive error response that is\nlargely designed for developers to get detailed information for failures.",
+              "required": [
+                  "error",
+                  "error_description"
+              ],
+              "properties": {
+                  "error": {
+                      "type": "string"
+                  },
+                  "error_description": {
+                      "type": "string"
+                  }
+              }
+        }
+    }
+}

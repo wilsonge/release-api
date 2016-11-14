@@ -83,11 +83,45 @@ final class JApplicationApi extends JApplicationCms
 		// Create the application router
 		$this->router = new ApiRouter($this, $this->input);
 		$this->router->setControllerPrefix('ApiController');
-		$this->router->addMap(':component/:type', 'List');
-		$this->router->addMap(':component/:type/:id', 'Item');
+
+		// Now parse the Open API file for all the routes
+		$this->initialiseRoutes();
 
 		// Force the format to JSON, mainly affects JDocument uses
 		$this->input->set('format', 'json');
+	}
+
+	/**
+	 * Parses the Open API file (using the v2 format) for all the routes
+	 *
+	 * In the future here we should do basic validation of the parameters!
+	 *
+	 * @since 1.0
+	 */
+	protected function initialiseRoutes()
+	{
+		$swaggerFile = __DIR__ . '/open_api.json';
+
+		if (!file_exists($swaggerFile))
+		{
+			throw new \RuntimeException('Open API Routing file could not be found', 500);
+		}
+
+		// Now get the user management routes (these are from the generated swagger json file
+		$swaggerJson = json_decode(file_get_contents($swaggerFile), true);
+
+		if (!$swaggerJson)
+		{
+			throw new \RuntimeException('Invalid JSON in Open API File', 500);
+		}
+
+		foreach ($swaggerJson['paths'] as $url => $operations)
+		{
+			foreach ($operations as $httpMethod => $operation)
+			{
+				$this->router->addMap($url, ucfirst($operation['operationId']));
+			}
+		}
 	}
 
 	/**

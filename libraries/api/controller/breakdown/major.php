@@ -24,11 +24,20 @@ class ApiControllerBreakdownMajor extends JControllerBase
 	 */
 	public function execute()
 	{
-		$filter = [];
+		// This will autoload the ARS files
+		FOF30\Container\Container::getInstance('com_ars');
 
-		/** @var \FOF30\Model\DataModel $model */
-		$model = FOF30\Container\Container::getInstance('com_ars')->factory->model('model');
-		$item = $model->find($filter);
+		// Now get the totals
+		$total   = Akeeba\ReleaseSystem\Site\Helper\DownloadCounter::getCountForVgroup(1);
+		$total10 = Akeeba\ReleaseSystem\Site\Helper\DownloadCounter::getCountForCategory(1);
+		$total15 = Akeeba\ReleaseSystem\Site\Helper\DownloadCounter::getCountForCategory(2);
+		$total25 = Akeeba\ReleaseSystem\Site\Helper\DownloadCounter::getCountForCategory(3);
+		$total30 = Akeeba\ReleaseSystem\Site\Helper\DownloadCounter::getCountForCategory(4);
+
+		$item = [
+			'total' => $total,
+			'branches' => ['1.0' => $total10, '1.5' => $total15, '2.5' => $total25, '3.0' => $total30]
+		];
 
 		// Load the item into the document's buffer
 		$this->getApplication()->getDocument()->setBuffer($item);

@@ -37,6 +37,19 @@ if (!defined('_JDEFINES'))
 	require_once JPATH_BASE . '/includes/defines.php';
 }
 
+// Make sure our API library is actually installed
+if (!is_dir(JPATH_LIBRARIES . '/api')
+{
+	echo json_encode(
+		array(
+			'error'   => true,
+			'message' => 'The API application library is not installed, cannot run the application.',
+		)
+	);
+
+	exit;
+}
+
 require_once JPATH_BASE . '/includes/framework.php';
 
 // Set profiler start time and memory usage and mark afterLoad in the profiler.
@@ -47,7 +60,7 @@ JDEBUG ? $_PROFILER->setStart($startTime, $startMem)->mark('afterLoad') : null;
 JLoader::register('JApplicationApi', JPATH_LIBRARIES . '/api/application/api.php');
 
 // Register the library base path for the application libraries.
-JLoader::registerPrefix('Api', dirname(__DIR__) . '/libraries/api');
+JLoader::registerPrefix('Api', JPATH_LIBRARIES . '/api');
 
 // Set system error handling
 JError::setErrorHandling(E_NOTICE, 'callback', array('ApiError', 'handleLegacyError'));
@@ -55,7 +68,6 @@ JError::setErrorHandling(E_WARNING, 'callback', array('ApiError', 'handleLegacyE
 JError::setErrorHandling(E_ERROR, 'callback', array('ApiError', 'handleLegacyError'));
 
 // Set a custom Exception handler
-restore_exception_handler();
 set_exception_handler(array('ApiError', 'handleUncaughtThrowable'));
 
 // Register the application client
